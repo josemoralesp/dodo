@@ -6,7 +6,6 @@ import re
 import time
 import os
 from datetime import datetime
-from time import mktime
 
 
 DODO_FILE = os.path.join(os.getcwd(), 'DODO')
@@ -40,7 +39,9 @@ statuses = {
 
 
 def pretty_date(date_string):
-    timestamp = calendar.timegm((datetime.strptime(date_string, "%d-%m-%y %H:%M")).timetuple())
+    timestamp = calendar.timegm((datetime.strptime(date_string,
+                                                   "%d-%m-%y %H:%M")).
+                                timetuple())
     date = datetime.fromtimestamp(timestamp)
     diff = datetime.now() - date
     s = diff.seconds
@@ -76,7 +77,8 @@ def parse_dodo(line):
         if do_user:
             do_user = do_user.group().replace("((", "").replace("))", "")
         if do_description:
-            do_description = do_description.group().replace("{{", "").replace("}}", "")
+            do_description = do_description.group().\
+                replace("{{", "").replace("}}", "")
         return {
             "id": do_id,
             "time": do_time,
@@ -100,9 +102,13 @@ def dodo_load(args):
 
 def dodo_unload(final_do_base):
     content = ""
-    for key, value in sorted(final_do_base.iteritems(), key=lambda (key, value): key):
-        content += "#%s [[%s]] <<%s>> ((%s)) {{%s}}\n" % (value["id"], value["status"], value["time"],
-                                                          value["user"], value["description"])
+    for key, value in sorted(final_do_base.iteritems(),
+                             key=lambda (key, value): key):
+        content += "#%s [[%s]] <<%s>> ((%s)) {{%s}}\n" % (value["id"],
+                                                          value["status"],
+                                                          value["time"],
+                                                          value["user"],
+                                                          value["description"])
     dodo_write(content, "w")
 
 
@@ -204,10 +210,12 @@ def dodo_add(args):
 
 def dodo_list():
     global do_base
-    print "%s%sID\tStatus\t\tDate(-t)\tOwner(-u)\t\tDescription (-d)\n%s" % (TerminalColors.BOLD,
-                                                                             TerminalColors.UNDERLINE,
-                                                                             TerminalColors.END)
-    for key, value in sorted(do_base.iteritems(), key=lambda (key, value): key):
+    print "%s%sID\tStatus\t\tDate(-t)\t"\
+        "Owner(-u)\t\tDescription (-d)\n%s" % (TerminalColors.BOLD,
+                                               TerminalColors.UNDERLINE,
+                                               TerminalColors.END)
+    for key, value in sorted(do_base.iteritems(),
+                             key=lambda (key, value): key):
         color = TerminalColors.YELLOW
         if value["status"] == ".":
             color = TerminalColors.GREEN
@@ -219,8 +227,10 @@ def dodo_list():
             color = TerminalColors.BLUE
         user = value["user"] if value["user"] != "None" else "anonymous"
         human_time = pretty_date(value["time"])
-        print "%s%s\t[%s]\t\t%s\t(%s)\t\t%s%s" % (color, value["id"], value["status"], human_time,
-                                                  user, value["description"], TerminalColors.END)
+        print "%s%s\t[%s]\t\t%s\t(%s)\t\t%s%s" % (color, value["id"],
+                                                  value["status"], human_time,
+                                                  user, value["description"],
+                                                  TerminalColors.END)
     print "\n%sAvailable Operations: c accept propose reject workon finish remove d\n" \
           "Available Options: -id -d(description) -u(user) -t(time) -f(file)\n" \
           "Status: + proposed - rejected * accepted # working . complete%s" % (
@@ -230,8 +240,12 @@ def dodo_list():
 def dodo_import(args):
     """
     Sample import JSON format (same as taskwarrior export format)
-    {"id":1,"description":"Read Docs Now","entry":"20150405T020324Z","status":"pending",
-    "uuid":"1ac1893d-db66-40d7-bf67-77ca7c51a3fc","urgency":"0"}
+    {"id":1,
+     "description":"Read Docs Now",
+     "entry":"20150405T020324Z",
+     "status":"pending",
+     "uuid":"1ac1893d-db66-40d7-bf67-77ca7c51a3fc",
+     "urgency":"0"}
     """
     global username
     do_user = args.user or username
@@ -260,8 +274,12 @@ def dodo_import(args):
 
 def dodo_export(args):
     """
-    {"id":1,"description":"Read Docs Now","entry":"20150405T020324Z","status":"pending",
-    "uuid":"1ac1893d-db66-40d7-bf67-77ca7c51a3fc","urgency":"0"}
+    {"id":1,
+     "description":"Read Docs Now",
+     "entry":"20150405T020324Z",
+     "status":"pending",
+     "uuid":"1ac1893d-db66-40d7-bf67-77ca7c51a3fc",
+     "urgency":"0"}
     Time is in UTC
     """
     dodo_data = []
@@ -297,7 +315,8 @@ def dodo_switch(args):
     global do_base
     if args.operation == "init":
         dodo_init(args)
-    elif args.operation in ['add', 'propose', 'accept', 'reject', 'workon', 'finish', 'remove', "c", "d"]:
+    elif args.operation in ['add', 'propose', 'accept', 'reject', 'workon',
+                            'finish', 'remove', "c", "d"]:
         dodo_add(args)
     elif args.operation == 'import':
         dodo_import(args)
@@ -310,9 +329,11 @@ def dodo_switch(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("operation", type=str,
-                        help="List all existing dodos add, propose, accept, reject, workon, finish, remove")
+                        help="List all existing dodos add,"
+                        " propose, accept, reject, workon, finish, remove")
     parser.add_argument("quick_access", type=str, nargs='?', default='',
-                        help="Task ID for a operation or Description for the new task")
+                        help="Task ID for a operation "
+                        "or Description for the new task")
     parser.add_argument("-d", "--desc", "--description", type=str,
                         help="Task Description")
     parser.add_argument("-u", "--user", type=str,
